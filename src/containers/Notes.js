@@ -92,7 +92,6 @@ export default class Notes extends Component {
             })
 
             if (attachment) {
-                console.log(this.state.note.attachment)
                 await s3Delete(this.state.note.attachment)
             }
             this.props.history.push("/")
@@ -100,6 +99,10 @@ export default class Notes extends Component {
             alert(e);
             this.setState({ isLoading: false})
         }
+    }
+
+    deleteNote() {
+        return API.del("notes", `/notes/${this.props.match.params.id}`)
     }
 
     handleDelete = async event => {
@@ -111,6 +114,17 @@ export default class Notes extends Component {
             return;
         }
         this.setState({ isDeleting: true })
+
+        try {
+            await this.deleteNote();
+            if (this.state.note.attachment) {
+                await s3Delete(this.state.note.attachment)
+            }
+            this.props.history.push("/")
+        } catch (e) {
+            alert(e);
+            this.setState({ isDeleting: false })
+        }
     }
 
     render() {
